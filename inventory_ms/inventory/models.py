@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.validators import MinValueValidator
 
 class Category(models.Model):
@@ -15,7 +15,7 @@ class InventoryItem(models.Model):
     quantity = models.IntegerField(validators=[MinValueValidator(0)])
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inventory_items')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='inventory_items')
     date_added = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     
@@ -36,7 +36,7 @@ class InventoryChange(models.Model):
     )
     
     item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, related_name='changes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     change_type = models.CharField(max_length=10, choices=CHANGE_TYPES)
     previous_quantity = models.IntegerField()
     new_quantity = models.IntegerField()
@@ -45,7 +45,6 @@ class InventoryChange(models.Model):
     notes = models.TextField(blank=True)
     
     def save(self, *args, **kwargs):
-        # Calculate change amount automatically
         self.change_amount = self.new_quantity - self.previous_quantity
         super().save(*args, **kwargs)
     

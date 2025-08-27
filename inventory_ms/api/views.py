@@ -1,5 +1,5 @@
-from rest_framework import viewsets, permissions, filters
-from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, filters, status
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
@@ -23,6 +23,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class InventoryItemViewSet(viewsets.ModelViewSet):
+    queryset = InventoryItem.objects.all()  # Add this line
     serializer_class = InventoryItemSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -51,7 +52,8 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         )
     
     def perform_update(self, serializer):
-        old_quantity = self.get_object().quantity
+        old_instance = self.get_object()
+        old_quantity = old_instance.quantity
         item = serializer.save()
         new_quantity = item.quantity
         
@@ -129,6 +131,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class InventoryChangeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = InventoryChange.objects.all()  # Add this line
     serializer_class = InventoryChangeSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
