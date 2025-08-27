@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import InventoryItem, Category, InventoryChange
+from .models import Category, InventoryItem, InventoryChange
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
